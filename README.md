@@ -1,6 +1,10 @@
 # Letters backoffice
 
+[![Repo](https://img.shields.io/badge/GitHub-michelelings%2Fletters--backoffice-111?style=flat&logo=github)](https://github.com/michelelings/letters-backoffice)
+
 React + Vite staff UI for page inventory, locale parity, and (optional) GA4, GSC, Ahrefs, and Semrush summaries via Vercel serverless routes.
+
+**This repository** is the app root (not the `backoffice/` subfolder of [letters-website](https://github.com/michelelings/letters-website)). Clone this repo to work in Cursor, then attach the marketing site as described below.
 
 The marketing site stays a **separate repository** (static HTML at [letters-website](https://github.com/michelelings/letters-website)). This app only **reads** that tree to build `public/pages-manifest.json` and imports its [`styles.css`](https://github.com/michelelings/letters-website/blob/main/styles.css) for visual parity.
 

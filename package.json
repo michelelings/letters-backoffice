@@ -3,6 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/michelelings/letters-backoffice.git"
+  },
+  "bugs": {
+    "url": "https://github.com/michelelings/letters-backoffice/issues"
+  },
+  "homepage": "https://github.com/michelelings/letters-backoffice#readme",
   "scripts": {
     "manifest": "node scripts/generate-pages-manifest.mjs",
     "dev": "npm run manifest && vite",
