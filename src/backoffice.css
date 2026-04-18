@@ -1,0 +1,182 @@
+/* Uses marketing site tokens from ../../styles.css (:root --lg-*). */
+
+.bo-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--lg-bg-page);
+  color: var(--lg-fg-primary);
+}
+
+.bo-header {
+  padding: 1rem clamp(0.75rem, 4vw, 2rem);
+  border-bottom: 1px solid var(--lg-tile-border);
+  background: var(--lg-bg-primary);
+}
+
+.bo-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.bo-header p {
+  margin: 0.35rem 0 0;
+  font-size: 0.9rem;
+  color: var(--lg-footer-fg);
+  max-width: 52rem;
+}
+
+.bo-main {
+  flex: 1;
+  padding: 1.25rem clamp(0.75rem, 4vw, 2rem) 2.5rem;
+}
+
+.bo-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.bo-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 10rem;
+}
+
+.bo-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--lg-footer-fg);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.bo-field select,
+.bo-field input[type="search"] {
+  font: inherit;
+  color: inherit;
+  background: var(--lg-bg-primary);
+  border: 1px solid var(--lg-tile-border);
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.6rem;
+  box-shadow: var(--lg-tile-shadow);
+}
+
+.bo-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.bo-tab {
+  font: inherit;
+  cursor: pointer;
+  border: 1px solid var(--lg-tile-border);
+  background: var(--lg-bg-primary);
+  color: inherit;
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.9rem;
+}
+
+.bo-tab[aria-selected="true"] {
+  box-shadow: var(--lg-hover-ring);
+  font-weight: 600;
+}
+
+.bo-meta {
+  font-size: 0.85rem;
+  color: var(--lg-footer-fg);
+  margin: 0 0 1rem;
+}
+
+.bo-table-wrap {
+  overflow: auto;
+  border: 1px solid var(--lg-tile-border);
+  border-radius: 0.65rem;
+  background: var(--lg-bg-primary);
+  box-shadow: var(--lg-tile-shadow);
+}
+
+.bo-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.bo-table th,
+.bo-table td {
+  text-align: left;
+  padding: 0.55rem 0.65rem;
+  vertical-align: top;
+  border-bottom: 1px solid var(--lg-tile-border);
+}
+
+.bo-table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--lg-footer-fg);
+  white-space: nowrap;
+}
+
+.bo-table tbody tr:hover {
+  background: color-mix(in srgb, var(--lg-bg-page) 55%, transparent);
+}
+
+.bo-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.82em;
+  word-break: break-all;
+}
+
+.bo-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 650;
+  padding: 0.15rem 0.45rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--lg-tile-border);
+}
+
+.bo-badge--ok {
+  color: var(--lg-fg-primary);
+  background: color-mix(in srgb, var(--lg-bg-page) 70%, transparent);
+}
+
+.bo-badge--miss {
+  color: var(--lg-fg-primary);
+  background: color-mix(in srgb, #c96 18%, var(--lg-bg-primary));
+}
+
+.bo-link {
+  color: var(--lg-footer-link);
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+
+.bo-link:hover {
+  text-decoration-thickness: 0.12em;
+}
+
+.bo-error {
+  padding: 1rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--lg-tile-border);
+  background: var(--lg-bg-primary);
+  color: var(--lg-fg-primary);
+}
+
+.bo-footnote {
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--lg-footer-fg);
+  max-width: 48rem;
+}
