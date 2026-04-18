@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { localeLabel } from "./locales";
+import { MetricsPanel } from "./MetricsPanel";
 import type { PageRow, PagesManifest } from "./types";
 
-type Tab = "parity" | "browse";
+type Tab = "parity" | "browse" | "metrics";
 
 function absUrl(base: string, path: string): string {
   const b = base.replace(/\/$/, "");
@@ -21,14 +22,6 @@ function indexMirrorPages(pages: PageRow[]): Map<string, PageRow> {
 
 function isGuidesPage(pathKey: string): boolean {
   return pathKey === "guides" || /(^|\/)guides(\/|$)/.test(pathKey);
-}
-
-function formatTime(iso: string): string {
-  try {
-    return new Date(iso).toLocaleString();
-  } catch {
-    return iso;
-  }
 }
 
 export function App() {
@@ -116,31 +109,10 @@ export function App() {
     });
   }, [manifest, browseLocale, guidesOnly, search]);
 
-  const countsByLocale = useMemo(() => {
-    if (!manifest) return new Map<string, number>();
-    const m = new Map<string, number>();
-    for (const p of manifest.pages) {
-      m.set(p.locale, (m.get(p.locale) ?? 0) + 1);
-    }
-    return m;
-  }, [manifest]);
-
-  const statsLine = useMemo(() => {
-    if (!manifest) return "";
-    const parts = localeOptions.map(
-      (code) => `${localeLabel(code)}: ${countsByLocale.get(code) ?? 0}`,
-    );
-    return parts.join(" · ");
-  }, [manifest, localeOptions, countsByLocale]);
-
   return (
     <div className="bo-shell">
       <header className="bo-header">
         <h1>Letters backoffice</h1>
-        <p>
-          Internal page inventory and locale parity (strict path mirror under each prefix).
-          Analytics hooks can extend this shell later without changing the public marketing site.
-        </p>
       </header>
 
       <main className="bo-main">
@@ -154,10 +126,6 @@ export function App() {
 
         {manifest ? (
           <>
-            <p className="bo-meta">
-              Manifest {formatTime(manifest.generatedAt)} · {manifest.pages.length} HTML files · {statsLine}
-            </p>
-
             <div className="bo-tabs" role="tablist" aria-label="View">
               <button
                 type="button"
@@ -177,77 +145,92 @@ export function App() {
               >
                 Browse all
               </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={tab === "metrics"}
+                className="bo-tab"
+                onClick={() => setTab("metrics")}
+              >
+                Metrics
+              </button>
             </div>
 
             <div className="bo-toolbar">
-              <div className="bo-field">
-                <label htmlFor="search">Search</label>
-                <input
-                  id="search"
-                  type="search"
-                  placeholder="Path or URL fragment"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  autoComplete="off"
-                />
-              </div>
-              <div className="bo-field">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={guidesOnly}
-                    onChange={(e) => setGuidesOnly(e.target.checked)}
-                  />{" "}
-                  Guides only
-                </label>
-              </div>
-              {tab === "parity" ? (
+              {tab === "metrics" ? null : (
                 <>
                   <div className="bo-field">
-                    <label htmlFor="compare-locale">Compare locale</label>
-                    <select
-                      id="compare-locale"
-                      value={effectiveCompare}
-                      onChange={(e) => setCompareLocale(e.target.value)}
-                    >
-                      {compareLocaleOptions.map((code) => (
-                        <option key={code} value={code}>
-                          {localeLabel(code)} ({code})
-                        </option>
-                      ))}
-                    </select>
+                    <label htmlFor="search">Search</label>
+                    <input
+                      id="search"
+                      type="search"
+                      placeholder="Path or URL fragment"
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      autoComplete="off"
+                    />
                   </div>
                   <div className="bo-field">
                     <label>
                       <input
                         type="checkbox"
-                        checked={missingOnly}
-                        onChange={(e) => setMissingOnly(e.target.checked)}
+                        checked={guidesOnly}
+                        onChange={(e) => setGuidesOnly(e.target.checked)}
                       />{" "}
-                      Missing mirror only
+                      Guides only
                     </label>
                   </div>
+                  {tab === "parity" ? (
+                    <>
+                      <div className="bo-field">
+                        <label htmlFor="compare-locale">Compare locale</label>
+                        <select
+                          id="compare-locale"
+                          value={effectiveCompare}
+                          onChange={(e) => setCompareLocale(e.target.value)}
+                        >
+                          {compareLocaleOptions.map((code) => (
+                            <option key={code} value={code}>
+                              {localeLabel(code)} ({code})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="bo-field">
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={missingOnly}
+                            onChange={(e) => setMissingOnly(e.target.checked)}
+                          />{" "}
+                          Missing mirror only
+                        </label>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="bo-field">
+                      <label htmlFor="browse-locale">Locale</label>
+                      <select
+                        id="browse-locale"
+                        value={browseLocale}
+                        onChange={(e) => setBrowseLocale(e.target.value)}
+                      >
+                        <option value="all">All locales</option>
+                        {localeOptions.map((code) => (
+                          <option key={code} value={code}>
+                            {localeLabel(code)} ({code})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </>
-              ) : (
-                <div className="bo-field">
-                  <label htmlFor="browse-locale">Locale</label>
-                  <select
-                    id="browse-locale"
-                    value={browseLocale}
-                    onChange={(e) => setBrowseLocale(e.target.value)}
-                  >
-                    <option value="all">All locales</option>
-                    {localeOptions.map((code) => (
-                      <option key={code} value={code}>
-                        {localeLabel(code)} ({code})
-                      </option>
-                    ))}
-                  </select>
-                </div>
               )}
             </div>
 
-            {tab === "parity" ? (
+            {tab === "metrics" ? (
+              <MetricsPanel manifest={manifest} />
+            ) : tab === "parity" ? (
               <div className="bo-table-wrap">
                 <table className="bo-table">
                   <thead>
@@ -356,6 +339,7 @@ export function App() {
               </div>
             )}
 
+            {tab === "metrics" ? null : (
             <p className="bo-footnote">
               Parity uses the same slug under a locale prefix (for example{" "}
               <span className="bo-mono">/guides/…</span> vs{" "}
@@ -363,6 +347,7 @@ export function App() {
               missing until you add a mirror path or a future hreflang-based matcher. Legacy trees such as{" "}
               <span className="bo-mono">/hoe-zeg-je/…</span> have no mirror key and only show in Browse all.
             </p>
+            )}
           </>
         ) : !loadError ? (
           <p className="bo-meta">Loading manifest…</p>
