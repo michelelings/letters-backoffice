@@ -10,6 +10,8 @@ export type PageRow = {
 export type PagesManifest = {
   generatedAt: string;
   baseUrl: string;
+  /** Relative path from the backoffice package to the scanned marketing tree (standalone builds). */
+  sourceRoot?: string;
   prefixLocales: string[];
   legacyRoots: Record<string, string>;
   pages: PageRow[];

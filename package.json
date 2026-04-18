@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "manifest": "node ../scripts/generate-pages-manifest.mjs",
+    "manifest": "node scripts/generate-pages-manifest.mjs",
     "dev": "npm run manifest && vite",
     "dev:vercel": "npm run manifest && vercel dev",
     "build": "npm run manifest && tsc -b && vite build",
