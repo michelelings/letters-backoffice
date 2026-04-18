@@ -2,7 +2,17 @@
   "name": "letters-backoffice",
   "private": true,
   "version": "0.0.0",
+  "description": "React + Vite staff UI for Letters marketing: page inventory, locale parity, and optional GA4/GSC/Ahrefs/Semrush summaries via Vercel serverless routes.",
   "type": "module",
+  "keywords": [
+    "letters",
+    "backoffice",
+    "vite",
+    "react",
+    "vercel",
+    "pages-manifest",
+    "i18n"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/michelelings/letters-backoffice.git"

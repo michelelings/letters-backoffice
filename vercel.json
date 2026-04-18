@@ -1,14 +1,4 @@
 {
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex, nofollow, noarchive"
-        }
-      ]
-    }
-  ],
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "buildCommand": "git clone --depth 1 https://github.com/michelelings/letters-website.git .letters-site && LETTERS_WEBSITE_ROOT=.letters-site npm run build",
+  "outputDirectory": "dist"
 }

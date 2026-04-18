@@ -1,10 +1,20 @@
 # Letters backoffice
 
 [![Repo](https://img.shields.io/badge/GitHub-michelelings%2Fletters--backoffice-111?style=flat&logo=github)](https://github.com/michelelings/letters-backoffice)
+[![Made with Cursor](https://img.shields.io/badge/Made%20with-Cursor-141EF5?style=flat&logo=cursor&logoColor=white)](https://cursor.com)
 
 React + Vite staff UI for page inventory, locale parity, and (optional) GA4, GSC, Ahrefs, and Semrush summaries via Vercel serverless routes.
 
-**This repository** is the app root (not the `backoffice/` subfolder of [letters-website](https://github.com/michelelings/letters-website)). Clone this repo to work in Cursor, then attach the marketing site as described below.
+**This repository** is the app root (not the `backoffice/` subfolder of [letters-website](https://github.com/michelelings/letters-website)).
+
+**Clone for Cursor:** use this repo as the project root, not the marketing monorepo:
+
+```bash
+git clone https://github.com/michelelings/letters-backoffice.git
+cd letters-backoffice
+```
+
+Then open the `letters-backoffice` folder in Cursor (**File → Open Folder…**) and link the marketing site as described below.
 
 The marketing site stays a **separate repository** (static HTML at [letters-website](https://github.com/michelelings/letters-website)). This app only **reads** that tree to build `public/pages-manifest.json` and imports its [`styles.css`](https://github.com/michelelings/letters-website/blob/main/styles.css) for visual parity.
 
@@ -60,15 +70,9 @@ Pick one:
 
 - **Root Directory**: `.` (repository root of this project).
 - **Install Command**: `npm ci` (or `npm install`).
-- **Build Command** (public marketing repo example):
-
-  ```bash
-  git clone --depth 1 https://github.com/michelelings/letters-website.git .letters-site && LETTERS_WEBSITE_ROOT=.letters-site npm run build
-  ```
-
-  Use a private clone URL + token if the marketing repo is private.
-
-- Output directory: `dist` (Vite default).
+- **Build Command**: the repo includes [`vercel.json`](vercel.json), which clones the public marketing site into `.letters-site` and runs `npm run build` with `LETTERS_WEBSITE_ROOT` set. Override in the Vercel dashboard only if you need a different flow.
+- For a **private** marketing repo, replace the clone URL with an authenticated URL or tokenized clone, or set `LETTERS_WEBSITE_ROOT` after fetching the site another way.
+- **Output directory**: `dist` (also set in `vercel.json`).
 
 After you move this app to its own repo, **remove the `backoffice/` folder** from the marketing monorepo in a follow-up commit so only one copy exists.
 
