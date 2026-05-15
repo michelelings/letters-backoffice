@@ -1,17 +1,13 @@
 #!/usr/bin/env node
 /**
- * Walks the marketing (letters-website) tree for *.html and writes public/pages-manifest.json.
+ * Builds public/pages-manifest.json from the marketing (letters-website) repo:
+ * - Static export: walks *.html (legacy)
+ * - Next.js App Router: walks page.tsx files under src/app (recursive) when no HTML pages are found
  *
  * Usage:
  *   node scripts/generate-pages-manifest.mjs [SITE_ROOT]
  *
- * SITE_ROOT defaults to, in order:
- *   - argv[2]
- *   - process.env.LETTERS_WEBSITE_ROOT
- *   - ../.. when run from letters-website/backoffice/scripts (monorepo)
- *   - .. when run from standalone repo with sibling ../letters-website (optional)
- *
- * Output always: <this package>/public/pages-manifest.json (script lives in backoffice/scripts).
+ * SITE_ROOT defaults to env LETTERS_WEBSITE_ROOT or usual sibling/vendor paths.
  */
 import { readdirSync, statSync, writeFileSync, mkdirSync, existsSync } from "fs";
 import { join, relative, dirname, resolve } from "path";
@@ -23,6 +19,12 @@ const OUT_DIR = join(PACKAGE_ROOT, "public");
 const OUT_FILE = join(OUT_DIR, "pages-manifest.json");
 
 const BASE_URL = "https://www.letters.game";
+
+const SITE_REPOSITORY = Object.freeze({
+  owner: "michelelings",
+  name: "letters-website",
+  defaultBranch: "main",
+});
 
 /** First path segment equals locale code (path prefix). Keep in sync with marketing translation.md */
 const PREFIX_LOCALES = new Set([
@@ -53,6 +55,13 @@ const LEGACY_ROOT_TO_LOCALE = {
 
 const SKIP_TOP_LEVEL = new Set([".git", "node_modules", ".cursor", "backoffice", "dist"]);
 
+function isMarketingSiteRoot(dir) {
+  const nextApp = existsSync(join(dir, "src", "app"));
+  const staticSite =
+    existsSync(join(dir, "styles.css")) && existsSync(join(dir, "index.html"));
+  return nextApp || staticSite;
+}
+
 function resolveSiteRoot() {
   const fromArg = process.argv[2]?.trim();
   if (fromArg) return resolve(fromArg);
@@ -61,27 +70,25 @@ function resolveSiteRoot() {
   if (fromEnv) return resolve(process.cwd(), fromEnv);
 
   const monorepoMarketing = resolve(PACKAGE_ROOT, "..");
-  if (
-    existsSync(join(monorepoMarketing, "styles.css")) &&
-    existsSync(join(monorepoMarketing, "index.html"))
-  ) {
+  if (isMarketingSiteRoot(monorepoMarketing)) {
     return monorepoMarketing;
   }
 
-  const sibling = resolve(PACKAGE_ROOT, "..", "letters-website");
-  if (existsSync(join(sibling, "styles.css"))) {
-    return sibling;
+  const vendor = join(PACKAGE_ROOT, "vendor", "letters-website");
+  if (isMarketingSiteRoot(vendor)) {
+    return vendor;
   }
 
-  const vendor = join(PACKAGE_ROOT, "vendor", "letters-website");
-  if (existsSync(join(vendor, "styles.css"))) {
-    return vendor;
+  const sibling = resolve(PACKAGE_ROOT, "..", "letters-website");
+  if (isMarketingSiteRoot(sibling)) {
+    return sibling;
   }
 
   console.error(
     "Set LETTERS_WEBSITE_ROOT or pass the marketing site directory as the first argument.\n" +
+      "Expected a Next.js tree with src/app or a static tree with index.html + styles.css.\n" +
       "Example: LETTERS_WEBSITE_ROOT=../letters-website npm run manifest\n" +
-      "Or add a git submodule at vendor/letters-website pointing at the marketing repo.",
+      "Or: git submodule at vendor/letters-website",
   );
   process.exit(1);
 }
@@ -115,6 +122,29 @@ function fileToPathKey(repoRoot, fileAbs) {
   return posix(rel.replace(/\.html$/i, ""));
 }
 
+/** App Router: src/app/(group)/foo/page.tsx -> path key "foo" (groups stripped). */
+function nextPageFileToPathKey(appRoot, fileAbs) {
+  const rel = posix(relative(appRoot, fileAbs));
+  const dir = dirname(rel);
+  if (dir === ".") return "";
+  const segments = dir.split("/").filter(Boolean);
+  const urlSegs = segments.filter((s) => !/^\([^)]+\)$/.test(s));
+  return urlSegs.join("/");
+}
+
+function walkNextPageFiles(appDir, out) {
+  const names = readdirSync(appDir);
+  for (const name of names) {
+    const full = join(appDir, name);
+    const st = statSync(full);
+    if (st.isDirectory()) {
+      walkNextPageFiles(full, out);
+    } else if (name === "page.tsx" || name === "page.jsx" || name === "page.mdx") {
+      out.push(full);
+    }
+  }
+}
+
 function pathKeyToUrlPath(pathKey) {
   if (pathKey === "") return "/";
   if (pathKey === "404.html") return "/404.html";
@@ -139,11 +169,15 @@ function classify(pathKey) {
 
 function main() {
   const REPO_ROOT = resolveSiteRoot();
-  const files = [];
-  walkHtmlFiles(REPO_ROOT, REPO_ROOT, files);
+  const htmlFiles = [];
+  walkHtmlFiles(REPO_ROOT, REPO_ROOT, htmlFiles);
 
-  const pages = files
-    .map((fileAbs) => {
+  let pages = [];
+  /** @type {"html" | "next-app"} */
+  let manifestSource = "html";
+
+  if (htmlFiles.length > 0) {
+    pages = htmlFiles.map((fileAbs) => {
       const pathKey = fileToPathKey(REPO_ROOT, fileAbs);
       const { locale, mirrorPathKey } = classify(pathKey);
       const urlPath = pathKeyToUrlPath(pathKey);
@@ -162,16 +196,50 @@ function main() {
         urlPath,
         mtimeMs,
       };
-    })
-    .sort((a, b) => {
-      if (a.locale !== b.locale) return a.locale.localeCompare(b.locale);
-      return a.pathKey.localeCompare(b.pathKey);
     });
+  } else {
+    const appRoot = join(REPO_ROOT, "src", "app");
+    if (!existsSync(appRoot)) {
+      console.error("No HTML pages and no src/app — cannot build manifest.");
+      process.exit(1);
+    }
+    manifestSource = "next-app";
+    const pageFiles = [];
+    walkNextPageFiles(appRoot, pageFiles);
+
+    pages = pageFiles.map((fileAbs) => {
+      const pathKey = nextPageFileToPathKey(appRoot, fileAbs);
+      const { locale, mirrorPathKey } = classify(pathKey);
+      const urlPath = pathKeyToUrlPath(pathKey);
+      const relFile = posix(relative(REPO_ROOT, fileAbs));
+      let mtimeMs = null;
+      try {
+        mtimeMs = statSync(fileAbs).mtimeMs;
+      } catch {
+        /* ignore */
+      }
+      return {
+        locale,
+        pathKey,
+        mirrorPathKey,
+        file: relFile,
+        urlPath,
+        mtimeMs,
+      };
+    });
+  }
+
+  pages.sort((a, b) => {
+    if (a.locale !== b.locale) return a.locale.localeCompare(b.locale);
+    return a.pathKey.localeCompare(b.pathKey);
+  });
 
   const manifest = {
     generatedAt: new Date().toISOString(),
     baseUrl: BASE_URL,
     sourceRoot: posix(relative(PACKAGE_ROOT, REPO_ROOT)) || ".",
+    siteRepository: SITE_REPOSITORY,
+    manifestSource,
     prefixLocales: [...PREFIX_LOCALES].sort(),
     legacyRoots: { ...LEGACY_ROOT_TO_LOCALE },
     pages,
@@ -180,7 +248,7 @@ function main() {
   mkdirSync(OUT_DIR, { recursive: true });
   writeFileSync(OUT_FILE, JSON.stringify(manifest, null, 2) + "\n", "utf8");
   console.error(
-    `Wrote ${pages.length} pages from ${REPO_ROOT} to ${relative(PACKAGE_ROOT, OUT_FILE)}`,
+    `Wrote ${pages.length} pages (${manifestSource}) from ${REPO_ROOT} to ${relative(PACKAGE_ROOT, OUT_FILE)}`,
   );
 }
 

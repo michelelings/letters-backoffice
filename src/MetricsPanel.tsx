@@ -7,7 +7,7 @@ import type {
   SeoSummaryResponse,
 } from "./metricsTypes";
 import { normalizeReportPath } from "./metricsPath";
-import type { PageRow, PagesManifest } from "./types";
+import type { OpportunitiesDoc, PageRow, PagesManifest } from "./types";
 
 async function fetchJson<T>(path: string): Promise<{ ok: boolean; status: number; data: T | null }> {
   try {
@@ -64,6 +64,35 @@ export function MetricsPanel({ manifest }: { manifest: PagesManifest }) {
   const [seo, setSeo] = useState<SeoSummaryResponse | null>(null);
   const [apisLoading, setApisLoading] = useState(true);
   const [tableSearch, setTableSearch] = useState("");
+  const [opportunities, setOpportunities] = useState<OpportunitiesDoc | null>(null);
+  const [oppError, setOppError] = useState<string | null>(null);
+  const [oppLoading, setOppLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setOppLoading(true);
+      try {
+        const res = await fetch("/opportunities.json");
+        if (!res.ok) throw new Error(`opportunities.json HTTP ${res.status}`);
+        const data = (await res.json()) as OpportunitiesDoc;
+        if (!cancelled) {
+          setOpportunities(data);
+          setOppError(null);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setOpportunities(null);
+          setOppError(e instanceof Error ? e.message : "Failed to load opportunities");
+        }
+      } finally {
+        if (!cancelled) setOppLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -140,10 +169,83 @@ export function MetricsPanel({ manifest }: { manifest: PagesManifest }) {
       {import.meta.env.DEV ? (
         <p className="bo-metrics__hint">
           <strong>Local Vite:</strong> <span className="bo-mono">/api/*</span> routes only run with{" "}
-          <span className="bo-mono">npx vercel dev</span> from <span className="bo-mono">backoffice/</span>, or on a
-          Vercel deployment. The table still lists every HTML page; metric cells fill in when APIs respond.
+          <span className="bo-mono">npx vercel dev</span> from this repository root, or on a Vercel deployment. The
+          table still lists every HTML page; metric cells fill in when APIs respond.
         </p>
       ) : null}
+
+      {oppLoading ? (
+        <p className="bo-meta">Loading opportunities…</p>
+      ) : opportunities && opportunities.items.length > 0 ? (
+        <>
+          <h2 className="bo-metrics__section-title">Opportunities queue</h2>
+          <p className="bo-meta bo-metrics__section-lead">
+            Curated in <span className="bo-mono">public/opportunities.json</span> — use CSV/GSC/GA/Ahrefs exports to feed
+            this list for agents. Each row links to production; cross-check with the manifest and parity tabs before
+            shipping non-English copy.
+          </p>
+          <div className="bo-table-wrap">
+            <table className="bo-table bo-table--metrics">
+              <thead>
+                <tr>
+                  <th scope="col">Priority</th>
+                  <th scope="col">Source</th>
+                  <th scope="col">Title</th>
+                  <th scope="col">URL</th>
+                  <th scope="col">Hint</th>
+                </tr>
+              </thead>
+              <tbody>
+                {opportunities.items.map((row) => {
+                  const path = normalizeReportPath(row.urlPath);
+                  const href = `${manifest.baseUrl.replace(/\/$/, "")}${path === "/" ? "/" : path}`;
+                  const pr = row.priority ?? "medium";
+                  return (
+                    <tr key={row.id}>
+                      <td>{pr}</td>
+                      <td className="bo-mono">{row.source}</td>
+                      <td>{row.title}</td>
+                      <td>
+                        <a className="bo-link" href={href} target="_blank" rel="noreferrer">
+                          {path}
+                        </a>
+                        {row.locale ? (
+                          <span className="bo-metrics__file-hint">
+                            {" "}
+                            <span className="bo-mono">{row.locale}</span>
+                          </span>
+                        ) : null}
+                      </td>
+                      <td>
+                        {row.metricHint ? (
+                          <span>{row.metricHint}</span>
+                        ) : (
+                          <span className="bo-metrics__placeholder">—</span>
+                        )}
+                        {row.notes ? <div className="bo-metrics__file-hint">{row.notes}</div> : null}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ) : (
+        <p className="bo-metrics__hint bo-metrics__hint--soft">
+          {oppError ? (
+            <>
+              <strong>Opportunities file missing or invalid.</strong> {oppError} Add a valid{" "}
+              <span className="bo-mono">public/opportunities.json</span> to prioritize pages from GSC/GA/Ahrefs exports.
+            </>
+          ) : (
+            <>
+              No opportunities in <span className="bo-mono">public/opportunities.json</span> yet — add an{" "}
+              <span className="bo-mono">items</span> array to queue work for content agents.
+            </>
+          )}
+        </p>
+      )}
 
       {apisLoading ? <p className="bo-meta">Loading API status…</p> : null}
 
@@ -168,7 +270,8 @@ export function MetricsPanel({ manifest }: { manifest: PagesManifest }) {
 
       <h2 className="bo-metrics__section-title">Pages and metric slots</h2>
       <p className="bo-meta bo-metrics__section-lead">
-        One row per HTML page in the repo. GA4 and GSC values join on normalized URL path when the APIs return data.
+        One row per route in the manifest (static HTML or Next.js <span className="bo-mono">page.tsx</span>). GA4 and GSC
+        values join on normalized URL path when the APIs return data.
         Today each API returns a capped “top pages” list, so many rows stay <span className="bo-mono">n/a</span> until
         we widen or page those queries. Ahrefs and Semrush columns are reserved for future per-URL scores; domain-level
         figures stay in the summary cards.

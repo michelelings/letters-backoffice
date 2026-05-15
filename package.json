@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/michelelings/letters-backoffice#readme",
   "scripts": {
-    "manifest": "node scripts/generate-pages-manifest.mjs",
+    "manifest": "node scripts/generate-pages-manifest.mjs && node scripts/generate-component-inventory.mjs",
     "dev": "npm run manifest && vite",
     "dev:vercel": "npm run manifest && vercel dev",
     "build": "npm run manifest && tsc -b && vite build",

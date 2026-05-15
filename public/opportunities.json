@@ -1,0 +1,24 @@
+{
+  "generatedAt": "2026-05-15T12:00:00.000Z",
+  "items": [
+    {
+      "id": "guide-vocab-daily-gsc",
+      "title": "Guide: refine title/meta for vocabulary daily",
+      "source": "gsc",
+      "urlPath": "/guides/learn-vocabulary-daily",
+      "locale": "en",
+      "metricHint": "High impressions + CTR dip — test title variants",
+      "priority": "high",
+      "notes": "Keep structure; use existing guide article components from Patterns."
+    },
+    {
+      "id": "es-guides-parity",
+      "title": "Ship Spanish hub parity for guides index",
+      "source": "manual",
+      "urlPath": "/es/guides",
+      "locale": "es",
+      "metricHint": "Parity queue — compare with English /guides",
+      "priority": "medium"
+    }
+  ]
+}

@@ -2,5 +2,6 @@
 node_modules
 dist
 public/pages-manifest.json
+public/component-inventory.json
 vendor/letters-website
 .letters-site

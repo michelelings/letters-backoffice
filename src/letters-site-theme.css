@@ -1,0 +1,43 @@
+/**
+ * Design tokens aligned with letters-website `src/app/globals.css` :root (no Tailwind).
+ * Used when the linked marketing repo is Next.js — Vite cannot process `@import "tailwindcss"` from globals.css.
+ */
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  color-scheme: light dark;
+  --lg-bg-primary: #f5f5f7;
+  --lg-bg-page: #efefef;
+  --lg-fg-primary: #1c1c1e;
+  --lg-tile-border: rgba(0, 0, 0, 0.07);
+  --lg-tile-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+  --lg-hover-ring: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  --lg-tile-hover-drop: 0 6px 14px rgba(0, 0, 0, 0.12);
+  --lg-footer-fg: #444;
+  --lg-footer-link: #111;
+  --tile-w: 3.25rem;
+  --tile-h: 5rem;
+  --answer-overlap: 0.08;
+  --tile-ease: cubic-bezier(0.34, 1.2, 0.64, 1);
+  --tile-ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --tile-dur: 0.22s;
+  --tile-enter-dur: 0.55s;
+  --tile-exit-dur: 0.42s;
+  --tile-stagger-ms: 42ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lg-bg-primary: #3a3a3c;
+    --lg-bg-page: #1c1c1e;
+    --lg-fg-primary: #f5f5f7;
+    --lg-tile-border: rgba(255, 255, 255, 0.12);
+    --lg-tile-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+    --lg-hover-ring: 0 0 0 1px rgba(255, 255, 255, 0.18);
+    --lg-tile-hover-drop: 0 8px 22px rgba(0, 0, 0, 0.55);
+    --lg-footer-fg: #98989d;
+    --lg-footer-link: #f5f5f7;
+  }
+}

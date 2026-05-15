@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { localeLabel } from "./locales";
 import { MetricsPanel } from "./MetricsPanel";
+import { PatternsPanel } from "./PatternsPanel";
+import { SourceLinks } from "./SourceLinks";
 import type { PageRow, PagesManifest } from "./types";
 
-type Tab = "parity" | "browse" | "metrics";
+type Tab = "parity" | "browse" | "metrics" | "patterns";
 
 function absUrl(base: string, path: string): string {
   const b = base.replace(/\/$/, "");
@@ -112,14 +114,41 @@ export function App() {
   return (
     <div className="bo-shell">
       <header className="bo-header">
-        <h1>Letters backoffice</h1>
+        <div className="bo-header__text">
+          <h1 className="bo-header__title">Letters backoffice</h1>
+          <p className="bo-header__tagline">
+            {manifest ? (
+              <>
+                <span className="bo-mono">{manifest.baseUrl.replace(/^https?:\/\//, "")}</span>
+                <span className="bo-header__dot" aria-hidden>
+                  ·
+                </span>
+                <span>
+                  {manifest.pages.length} routes in manifest
+                  {manifest.manifestSource ? (
+                    <>
+                      <span className="bo-header__dot" aria-hidden>
+                        ·
+                      </span>
+                      <span className="bo-mono">{manifest.manifestSource}</span>
+                    </>
+                  ) : null}
+                </span>
+              </>
+            ) : loadError ? (
+              "Staff tools · manifest unavailable"
+            ) : (
+              "Staff tools · loading site inventory…"
+            )}
+          </p>
+        </div>
       </header>
 
       <main className="bo-main">
         {loadError ? (
           <div className="bo-error" role="alert">
             <strong>Could not load pages manifest.</strong> {loadError} Run{" "}
-            <span className="bo-mono">npm run manifest</span> from <span className="bo-mono">backoffice/</span>{" "}
+            <span className="bo-mono">npm run manifest</span> from the repo root{" "}
             after pulling HTML changes, then refresh.
           </div>
         ) : null}
@@ -148,6 +177,15 @@ export function App() {
               <button
                 type="button"
                 role="tab"
+                aria-selected={tab === "patterns"}
+                className="bo-tab"
+                onClick={() => setTab("patterns")}
+              >
+                Patterns
+              </button>
+              <button
+                type="button"
+                role="tab"
                 aria-selected={tab === "metrics"}
                 className="bo-tab"
                 onClick={() => setTab("metrics")}
@@ -157,7 +195,7 @@ export function App() {
             </div>
 
             <div className="bo-toolbar">
-              {tab === "metrics" ? null : (
+              {tab === "metrics" || tab === "patterns" ? null : (
                 <>
                   <div className="bo-field">
                     <label htmlFor="search">Search</label>
@@ -230,6 +268,8 @@ export function App() {
 
             {tab === "metrics" ? (
               <MetricsPanel manifest={manifest} />
+            ) : tab === "patterns" ? (
+              <PatternsPanel manifest={manifest} />
             ) : tab === "parity" ? (
               <div className="bo-table-wrap">
                 <table className="bo-table">
@@ -257,8 +297,8 @@ export function App() {
                           >
                             {en.urlPath}
                           </a>
-                          <div className="bo-mono" style={{ marginTop: "0.25rem", opacity: 0.85 }}>
-                            {en.file}
+                          <div style={{ marginTop: "0.35rem" }}>
+                            <SourceLinks manifest={manifest} repoRelPath={en.file} />
                           </div>
                         </td>
                         <td>
@@ -272,8 +312,8 @@ export function App() {
                               >
                                 {other.urlPath}
                               </a>
-                              <div className="bo-mono" style={{ marginTop: "0.25rem", opacity: 0.85 }}>
-                                {other.file}
+                              <div style={{ marginTop: "0.35rem" }}>
+                                <SourceLinks manifest={manifest} repoRelPath={other.file} />
                               </div>
                             </>
                           ) : (
@@ -324,7 +364,9 @@ export function App() {
                           </a>
                         </td>
                         <td className="bo-mono">{p.pathKey || "(home)"}</td>
-                        <td className="bo-mono">{p.file}</td>
+                        <td>
+                          <SourceLinks manifest={manifest} repoRelPath={p.file} />
+                        </td>
                         <td className="bo-mono">
                           {p.mirrorPathKey === null
                             ? "n/a"
@@ -339,13 +381,13 @@ export function App() {
               </div>
             )}
 
-            {tab === "metrics" ? null : (
+            {tab === "metrics" || tab === "patterns" ? null : (
             <p className="bo-footnote">
-              Parity uses the same slug under a locale prefix (for example{" "}
-              <span className="bo-mono">/guides/…</span> vs{" "}
-              <span className="bo-mono">/es/guides/…</span>). Transcreated URLs with different slugs appear as
-              missing until you add a mirror path or a future hreflang-based matcher. Legacy trees such as{" "}
-              <span className="bo-mono">/hoe-zeg-je/…</span> have no mirror key and only show in Browse all.
+            Parity uses the same slug under a locale prefix (for example{" "}
+            <span className="bo-mono">/guides/…</span> vs <span className="bo-mono">/es/guides/…</span>). Transcreated
+            URLs with different slugs appear as missing until you add a mirror path or a future hreflang-based matcher.
+            Legacy trees such as <span className="bo-mono">/hoe-zeg-je/…</span> have no mirror key and only show in
+            Browse all.
             </p>
             )}
           </>
