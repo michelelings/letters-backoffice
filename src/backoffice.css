@@ -16,6 +16,32 @@
   border-bottom: 1px solid var(--lg-tile-border);
   background: var(--lg-bg-primary);
   box-shadow: 0 1px 0 color-mix(in srgb, var(--lg-tile-border) 65%, transparent);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.65rem 1.25rem;
+}
+
+.bo-header__cluster {
+  flex: 1;
+  min-width: min(100%, 14rem);
+}
+
+.bo-header__sync {
+  margin: 0;
+  padding-top: 0.2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--lg-footer-fg);
+  text-align: right;
+  flex-shrink: 0;
+  max-width: 22rem;
+  line-height: 1.35;
+}
+
+.bo-header__sync time {
+  font-variant-numeric: tabular-nums;
 }
 
 .bo-header__text {

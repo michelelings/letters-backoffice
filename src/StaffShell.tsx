@@ -4,6 +4,7 @@ import { MetricsPanel } from "./MetricsPanel";
 import { PatternsPanel } from "./PatternsPanel";
 import { SourceLinks } from "./SourceLinks";
 import { TopNav } from "./TopNav";
+import { formatSyncLabel } from "./formatSyncLabel";
 import type { PageRow, PagesManifest } from "./types";
 
 type Tab = "parity" | "browse" | "metrics" | "patterns";
@@ -115,35 +116,45 @@ export function StaffShell() {
   return (
     <div className="bo-shell">
       <header className="bo-header">
-        <TopNav />
-        <div className="bo-header__text">
-          <h1 className="bo-header__title">Letters backoffice</h1>
-          <p className="bo-header__tagline">
-            {manifest ? (
-              <>
-                <span className="bo-mono">{manifest.baseUrl.replace(/^https?:\/\//, "")}</span>
-                <span className="bo-header__dot" aria-hidden>
-                  ·
-                </span>
-                <span>
-                  {manifest.pages.length} routes in manifest
-                  {manifest.manifestSource ? (
-                    <>
-                      <span className="bo-header__dot" aria-hidden>
-                        ·
-                      </span>
-                      <span className="bo-mono">{manifest.manifestSource}</span>
-                    </>
-                  ) : null}
-                </span>
-              </>
-            ) : loadError ? (
-              "Staff tools · manifest unavailable"
-            ) : (
-              "Staff tools · loading site inventory…"
-            )}
-          </p>
+        <div className="bo-header__cluster">
+          <TopNav />
+          <div className="bo-header__text">
+            <h1 className="bo-header__title">Letters backoffice</h1>
+            <p className="bo-header__tagline">
+              {manifest ? (
+                <>
+                  <span className="bo-mono">{manifest.baseUrl.replace(/^https?:\/\//, "")}</span>
+                  <span className="bo-header__dot" aria-hidden>
+                    ·
+                  </span>
+                  <span>
+                    {manifest.pages.length} routes in manifest
+                    {manifest.manifestSource ? (
+                      <>
+                        <span className="bo-header__dot" aria-hidden>
+                          ·
+                        </span>
+                        <span className="bo-mono">{manifest.manifestSource}</span>
+                      </>
+                    ) : null}
+                  </span>
+                </>
+              ) : loadError ? (
+                "Staff tools · manifest unavailable"
+              ) : (
+                "Staff tools · loading site inventory…"
+              )}
+            </p>
+          </div>
         </div>
+        {manifest ? (
+          <p className="bo-header__sync">
+            Last sync{" "}
+            <time dateTime={manifest.generatedAt} title={manifest.generatedAt}>
+              {formatSyncLabel(manifest.generatedAt)}
+            </time>
+          </p>
+        ) : null}
       </header>
 
       <main className="bo-main">

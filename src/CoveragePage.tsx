@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { TopNav } from "./TopNav";
+import { formatSyncLabel } from "./formatSyncLabel";
 import type { CoverageSnapshot } from "./types";
 
 function coverageCellClass(score: number | null): string {
@@ -56,27 +57,37 @@ export function CoveragePage() {
   return (
     <div className="bo-shell">
       <header className="bo-header">
-        <TopNav />
-        <div className="bo-header__text">
-          <h1 className="bo-header__title">Coverage matrix</h1>
-          <p className="bo-header__tagline">
-            {snapshot ? (
-              <>
-                <span className="bo-mono">{snapshot.baseUrl.replace(/^https?:\/\//, "")}</span>
-                <span className="bo-header__dot" aria-hidden>
-                  ·
-                </span>
-                <span>
-                  {filteredRows.length} of {snapshot.rows.length} rows · {snapshot.locales.length} locales
-                </span>
-              </>
-            ) : loadError ? (
-              "Coverage snapshot unavailable"
-            ) : (
-              "Loading coverage snapshot…"
-            )}
-          </p>
+        <div className="bo-header__cluster">
+          <TopNav />
+          <div className="bo-header__text">
+            <h1 className="bo-header__title">Coverage matrix</h1>
+            <p className="bo-header__tagline">
+              {snapshot ? (
+                <>
+                  <span className="bo-mono">{snapshot.baseUrl.replace(/^https?:\/\//, "")}</span>
+                  <span className="bo-header__dot" aria-hidden>
+                    ·
+                  </span>
+                  <span>
+                    {filteredRows.length} of {snapshot.rows.length} rows · {snapshot.locales.length} locales
+                  </span>
+                </>
+              ) : loadError ? (
+                "Coverage snapshot unavailable"
+              ) : (
+                "Loading coverage snapshot…"
+              )}
+            </p>
+          </div>
         </div>
+        {snapshot ? (
+          <p className="bo-header__sync">
+            Last sync{" "}
+            <time dateTime={snapshot.generatedAt} title={snapshot.generatedAt}>
+              {formatSyncLabel(snapshot.generatedAt)}
+            </time>
+          </p>
+        ) : null}
       </header>
 
       <main className="bo-main">
