@@ -16,7 +16,7 @@ cd letters-backoffice
 
 Then open the `letters-backoffice` folder in Cursor (**File → Open Folder…**) and link the marketing site as described below.
 
-The marketing site stays a **separate repository** (static HTML at [letters-website](https://github.com/michelelings/letters-website)). This app only **reads** that tree to build `public/pages-manifest.json` and imports its [`styles.css`](https://github.com/michelelings/letters-website/blob/main/styles.css) for visual parity.
+The marketing site stays a **separate repository** ([`letters-website`](https://github.com/michelelings/letters-website)). Production builds **clone** it and generate manifests (see **Fresh data (deploy hooks)** below). Local dev links a checkout for `npm run manifest` and styles.
 
 ## Own GitHub repo and Cursor project
 
@@ -76,12 +76,39 @@ Pick one:
 
 After you move this app to its own repo, **remove the `backoffice/` folder** from the marketing monorepo in a follow-up commit so only one copy exists.
 
+## Fresh data (deploy hooks)
+
+Inventory, **Coverage**, and Patterns JSON are produced **when this app builds** (they embed the marketing site as of that deploy). To keep them aligned with `letters-website`:
+
+### A — Redeploy when the marketing site changes (recommended)
+
+1. In **Vercel** open project **letters-backoffice** → **Settings** → **Git** → **Deploy Hooks** → create a hook for **Production** and copy the URL.
+2. In **GitHub** open **`michelelings/letters-website`** → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**:
+   - Name: `VERCEL_DEPLOY_HOOK_URL`
+   - Value: the hook URL from step 1.
+3. Add a workflow on **`letters-website`** that POSTs to that secret on push to `main`. Copy [`examples/letters-website-trigger-backoffice-deploy.yml`](examples/letters-website-trigger-backoffice-deploy.yml) to  
+   `.github/workflows/trigger-letters-backoffice-deploy.yml` in the **marketing** repository and commit.
+
+After that, every merge to **`letters-website` `main`** triggers a fresh **letters-backoffice** production deploy.
+
+### B — Nightly refresh (optional)
+
+This repo includes [`.github/workflows/nightly-backoffice-deploy.yml`](.github/workflows/nightly-backoffice-deploy.yml).
+
+In **`michelelings/letters-backoffice`** → **Settings** → **Secrets** → **Actions**, add **`VERCEL_DEPLOY_HOOK_URL`** (the same Vercel hook URL). The workflow runs **daily** and on **manual “Run workflow”** so the build reclones `letters-website` even without a marketing push.
+
+### C — “Live” Metrics APIs
+
+Configure variables from [`.env.example`](.env.example) on the Vercel project and redeploy so **Metrics** can call GA4 / GSC / vendor APIs.
+
+**Agent-facing summary:** [AGENTS.md](AGENTS.md).
+
 ## Scripts
 
 | Script | Purpose |
 | --- | --- |
-| `npm run manifest` | Regenerate `public/pages-manifest.json` from the marketing HTML tree. |
+| `npm run manifest` | Regenerate `pages-manifest.json`, `component-inventory.json`, and `coverage-snapshot.json` from the linked marketing tree. |
 | `npm run dev` | Manifest + Vite dev server (`/api/*` needs `npx vercel dev` or deploy). |
-| `npm run build` | Manifest + production client bundle. |
+| `npm run build` | Manifest + coverage snapshot + production client bundle (`dist`). |
 
 Environment variables for APIs are documented in [`.env.example`](.env.example).

@@ -1,0 +1,26 @@
+# Redeploy production so the build reclones letters-website and regenerates manifest / coverage / patterns JSON.
+# Requires GitHub secret VERCEL_DEPLOY_HOOK_URL (Deploy Hook from Vercel → letters-backoffice project).
+# Create hook: Vercel → Project → Settings → Git → Deploy Hooks → "Production" hook URL.
+
+name: Nightly production redeploy
+
+on:
+  schedule:
+    # 06:15 UTC daily (~ fresh data each morning EU; adjust as needed)
+    - cron: "15 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  trigger-vercel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST Vercel deploy hook
+        env:
+          HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK_URL" ]; then
+            echo "::error::GitHub secret VERCEL_DEPLOY_HOOK_URL is not set. See README (Deploy hooks)."
+            exit 1
+          fi
+          curl -fsS -X POST "$HOOK_URL" -d ""
+          echo "Deploy hook accepted."

@@ -1,0 +1,33 @@
+# Copy this file into the MARKETING repository as:
+#   .github/workflows/trigger-letters-backoffice-deploy.yml
+# (Repository: michelelings/letters-website — not the backoffice repo.)
+#
+# One-time setup:
+# 1. In Vercel → letters-backoffice → Settings → Git → Deploy Hooks → create a hook for "Production".
+# 2. In GitHub → letters-website → Settings → Secrets and variables → Actions:
+#    add VERCEL_DEPLOY_HOOK_URL = full hook URL from step 1.
+#
+# Result: every push to `main` on letters-website triggers a production redeploy of letters-backoffice
+# so manifests and coverage always reflect the latest marketing site.
+
+name: Trigger letters-backoffice deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  redeploy-backoffice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST Vercel deploy hook (letters-backoffice)
+        env:
+          HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK_URL" ]; then
+            echo "::error::Add VERCEL_DEPLOY_HOOK_URL to this repo's Actions secrets (Deploy Hook URL from Vercel letters-backoffice project)."
+            exit 1
+          fi
+          curl -fsS -X POST "$HOOK_URL" -d ""
+          echo "letters-backoffice production deploy triggered."
