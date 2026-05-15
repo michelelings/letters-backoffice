@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import historyApiFallback from "connect-history-api-fallback";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
@@ -66,6 +67,17 @@ const lettersStylesEntry = resolveMarketingStylesEntry(lettersWebsiteRoot);
 export default defineConfig({
   plugins: [
     react(),
+    {
+      name: "spa-history-fallback",
+      configureServer(server) {
+        server.middlewares.use(
+          historyApiFallback({
+            disableDotRule: true,
+            verbose: false,
+            }) as any,
+        );
+      },
+    },
     {
       name: "letters-inject-vercel-git-sha",
       transformIndexHtml(html) {

@@ -445,6 +445,210 @@
   align-self: flex-end;
 }
 
+.bo-topnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.65rem;
+  margin-bottom: 0.65rem;
+  align-items: center;
+}
+
+.bo-topnav__link {
+  font-size: 0.8rem;
+  font-weight: 650;
+  color: var(--lg-footer-fg);
+  text-decoration: none;
+  padding: 0.28rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--lg-tile-border) 80%, transparent);
+  background: color-mix(in srgb, var(--lg-bg-primary) 88%, transparent);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.bo-topnav__link:hover {
+  color: var(--lg-fg-primary);
+  border-color: var(--lg-tile-border);
+}
+
+.bo-topnav__link--active {
+  color: var(--lg-fg-primary);
+  background: var(--lg-bg-page);
+  border-color: var(--lg-fg-primary);
+}
+
+.bo-cov__intro {
+  margin-bottom: 1rem;
+  max-width: 56rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--lg-footer-fg);
+}
+
+.bo-cov__note {
+  margin-top: 0.6rem;
+  font-size: 0.82rem;
+  opacity: 0.9;
+}
+
+.bo-cov__legend {
+  margin: 0.65rem 0 0;
+  font-size: 0.82rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+
+.bo-cov__swatch {
+  display: inline-block;
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 0.2rem;
+  vertical-align: middle;
+  margin-right: 0.1rem;
+}
+
+.bo-cov__swatch--ok {
+  background: color-mix(in srgb, #22c55e 75%, var(--lg-bg-primary));
+}
+
+.bo-cov__swatch--mid {
+  background: color-mix(in srgb, #eab308 85%, var(--lg-bg-primary));
+}
+
+.bo-cov__swatch--low {
+  background: color-mix(in srgb, #f97316 80%, var(--lg-bg-primary));
+}
+
+.bo-cov__swatch--miss {
+  background: color-mix(in srgb, var(--lg-footer-fg) 35%, var(--lg-bg-primary));
+}
+
+.bo-toolbar--cov {
+  align-items: flex-end;
+}
+
+.bo-cov__count {
+  margin: 0 0 0.15rem;
+  font-size: 0.85rem;
+  color: var(--lg-footer-fg);
+}
+
+.bo-cov__scroll {
+  margin-top: 0.75rem;
+  max-height: min(74vh, 46rem);
+  overflow: auto;
+  border: 1px solid var(--lg-tile-border);
+  border-radius: 0.65rem;
+  background: var(--lg-bg-primary);
+}
+
+.bo-cov__table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.78rem;
+}
+
+.bo-cov__table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--lg-bg-primary);
+  box-shadow: 0 1px 0 var(--lg-tile-border);
+  font-weight: 650;
+  text-align: center;
+  padding: 0.45rem 0.35rem;
+  white-space: nowrap;
+}
+
+.bo-cov__th-path {
+  text-align: left !important;
+  left: 0;
+  z-index: 3 !important;
+  min-width: 14rem;
+  max-width: 22rem;
+}
+
+.bo-cov__path {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--lg-bg-primary);
+  box-shadow: 1px 0 0 var(--lg-tile-border);
+  text-align: left;
+  vertical-align: top;
+  padding: 0.4rem 0.55rem !important;
+  font-weight: 500;
+}
+
+.bo-cov__file {
+  margin-top: 0.2rem;
+  font-size: 0.74rem;
+  opacity: 0.8;
+  word-break: break-all;
+}
+
+.bo-cov__th-num,
+.bo-cov__avg {
+  font-variant-numeric: tabular-nums;
+}
+
+.bo-cov__th-num {
+  min-width: 3rem;
+}
+
+.bo-cov__avg {
+  text-align: center;
+  font-weight: 650;
+  padding: 0.35rem 0.45rem;
+  background: color-mix(in srgb, var(--lg-bg-page) 55%, transparent);
+}
+
+.bo-cov__th-locale {
+  min-width: 2.85rem;
+  font-size: 0.72rem;
+}
+
+.bo-cov__cell {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  padding: 0.32rem 0.35rem;
+  font-weight: 600;
+}
+
+.bo-cov__cell--ok {
+  background: color-mix(in srgb, #22c55e 22%, var(--lg-bg-primary));
+}
+
+.bo-cov__cell--mid {
+  background: color-mix(in srgb, #eab308 24%, var(--lg-bg-primary));
+}
+
+.bo-cov__cell--low {
+  background: color-mix(in srgb, #f97316 26%, var(--lg-bg-primary));
+  color: var(--lg-fg-primary);
+}
+
+.bo-cov__cell--miss {
+  color: var(--lg-footer-fg);
+  background: color-mix(in srgb, var(--lg-footer-fg) 8%, var(--lg-bg-primary));
+  font-weight: 500;
+}
+
+@media (prefers-color-scheme: dark) {
+  .bo-cov__cell--ok {
+    background: color-mix(in srgb, #22c55e 16%, var(--lg-bg-primary));
+  }
+  .bo-cov__cell--mid {
+    background: color-mix(in srgb, #eab308 14%, var(--lg-bg-primary));
+  }
+  .bo-cov__cell--low {
+    background: color-mix(in srgb, #f97316 16%, var(--lg-bg-primary));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bo-tab,
   .bo-field select,

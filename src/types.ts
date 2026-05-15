@@ -57,3 +57,27 @@ export type OpportunitiesDoc = {
   generatedAt: string;
   items: OpportunityItem[];
 };
+
+export type CoverageScoring = {
+  staleDays: number;
+  penalties: { field: number; stale: number };
+  notes?: string;
+};
+
+export type CoverageRow = {
+  mirrorPathKey: string;
+  enUrlPath: string;
+  enFile: string;
+  avg: number;
+  scores: Record<string, number | null>;
+};
+
+export type CoverageSnapshot = {
+  generatedAt: string;
+  baseUrl: string;
+  siteRepository?: SiteRepository | null;
+  sourceRoot?: string;
+  locales: string[];
+  scoring: CoverageScoring;
+  rows: CoverageRow[];
+};
