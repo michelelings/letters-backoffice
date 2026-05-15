@@ -1,4 +1,4 @@
 {
-  "buildCommand": "git clone --depth 1 https://github.com/michelelings/letters-website.git .letters-site && LETTERS_WEBSITE_ROOT=.letters-site npm run build",
+  "buildCommand": "rm -rf .letters-site && git clone --depth 1 https://github.com/michelelings/letters-website.git .letters-site && LETTERS_WEBSITE_ROOT=.letters-site npm run build",
   "outputDirectory": "dist"
 }
